@@ -1,10 +1,11 @@
 --[[=============================================================
- Ys2cBript - Premium Hub (Red Theme)
- Advanced UI + Loading Screen + Fixed Jump + Wall Remover +
- Auto Heal + Fast Hit + Auto Drag Combo + ESP + Player Info +
- Misc Tools, Vertex UI removed, UI password gate + Discord key info
- Password: Y2B  (get key in Discord)
- Discord: https://discord.gg/KWKyYSKFhP
+Ys2cBript - Premium Hub (Red Theme)
+Advanced UI + Loading Screen + Fixed Jump + Wall Remover + Auto Heal
++ Fast Hit + Auto Drag Combo + ESP + Player Info + Misc Tools,
+Vertex UI removed, UI password gate + Discord key info
+
+Password: Y2B (get key in Discord)
+Discord: https://discord.gg/KWKyYSKFhP
 ===============================================================]]
 
 --// PASSWORD GATE (UI-BASED)
@@ -27,9 +28,7 @@ local function safeChar()
     return LP.Character or LP.CharacterAdded:Wait()
 end
 
-----------------------------------------------------------------
 -- PASSWORD UI
-----------------------------------------------------------------
 local PasswordGui = Instance.new("ScreenGui")
 PasswordGui.Name = "Ys2cBript_Password"
 PasswordGui.ResetOnSpawn = false
@@ -138,19 +137,26 @@ local function copyToClipboard(text)
     local ok = false
     pcall(function()
         if setclipboard then
-            setclipboard(text); ok = true
+            setclipboard(text)
+            ok = true
         elseif toclipboard then
-            toclipboard(text); ok = true
+            toclipboard(text)
+            ok = true
         end
     end)
     return ok
 end
 
 DiscordBtn.MouseEnter:Connect(function()
-    TweenService:Create(DiscordBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(130, 0, 0)}):Play()
+    TweenService:Create(DiscordBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(130, 0, 0)
+    }):Play()
 end)
+
 DiscordBtn.MouseLeave:Connect(function()
-    TweenService:Create(DiscordBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(70, 0, 0)}):Play()
+    TweenService:Create(DiscordBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(70, 0, 0)
+    }):Play()
 end)
 
 DiscordBtn.MouseButton1Click:Connect(function()
@@ -172,14 +178,9 @@ local function checkPassword()
         TweenService:Create(
             PassFrame,
             TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-            {BackgroundTransparency = 1}
+            { BackgroundTransparency = 1 }
         ):Play()
-
-        TweenService:Create(
-            PassStroke,
-            TweenInfo.new(0.25),
-            {Transparency = 1}
-        ):Play()
+        TweenService:Create(PassStroke, TweenInfo.new(0.25), { Transparency = 1 }):Play()
 
         for _, v in ipairs(PassFrame:GetDescendants()) do
             if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
@@ -194,13 +195,13 @@ local function checkPassword()
         TweenService:Create(
             PassBtn,
             TweenInfo.new(0.15),
-            {BackgroundColor3 = Color3.fromRGB(200, 0, 0)}
+            { BackgroundColor3 = Color3.fromRGB(200, 0, 0) }
         ):Play()
         task.delay(0.3, function()
             TweenService:Create(
                 PassBtn,
                 TweenInfo.new(0.15),
-                {BackgroundColor3 = Color3.fromRGB(180, 40, 40)}
+                { BackgroundColor3 = Color3.fromRGB(180, 40, 40) }
             ):Play()
         end)
     end
@@ -215,9 +216,7 @@ end)
 
 repeat task.wait(0.1) until passwordAccepted
 
-----------------------------------------------------------------
 -- SETTINGS / REMOTES
-----------------------------------------------------------------
 local SETTINGS_FILE = "Ys2cBript_Settings.json"
 
 local Settings = {
@@ -229,25 +228,20 @@ local Settings = {
     HitboxEnabled = false,
     HitboxSize = 22,
     HitboxTransparency = 0.65,
-
     AutoUseAll = false,
     AutoUseMelee = false,
     KillAura = false,
     HitInterval = 0.15,
-
     BarrierRemoved = false,
-
     AutoHealEnabled = false,
     AutoHealHP = 30,
-
     FollowTarget = false,
     FollowSpeed = 45,
     OrbitRadius = 5,
-
     ESPEnabled = false,
-
     AutoPipe = false,
     AutoDragCombo = false,
+    AutoProtect = false, -- NEW
 }
 
 local canUseFiles = (writefile and readfile and isfile) and true or false
@@ -255,8 +249,10 @@ local canUseFiles = (writefile and readfile and isfile) and true or false
 local function loadSettings()
     if not canUseFiles then return end
     if not isfile(SETTINGS_FILE) then return end
+
     local ok, data = pcall(readfile, SETTINGS_FILE)
     if not ok or not data or data == "" then return end
+
     local ok2, decoded = pcall(HttpService.JSONDecode, HttpService, data)
     if ok2 and type(decoded) == "table" then
         for k, v in pairs(decoded) do
@@ -288,9 +284,7 @@ local tpDelay = 0.08
 local frontOff = 0.7
 local upOff = 2.3
 
-----------------------------------------------------------------
 -- RED LOADING SCREEN
-----------------------------------------------------------------
 local LoadingGui = Instance.new("ScreenGui")
 LoadingGui.Name = "Ys2cBript_Loading"
 LoadingGui.ResetOnSpawn = false
@@ -378,8 +372,12 @@ BarFillCorner.Parent = BarFill
 
 task.spawn(function()
     for i = 1, 40 do
-        local goal = {Size = UDim2.new(i/40, 0, 1, 0)}
-        local tw = TweenService:Create(BarFill, TweenInfo.new(0.03, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), goal)
+        local goal = { Size = UDim2.new(i / 40, 0, 1, 0) }
+        local tw = TweenService:Create(
+            BarFill,
+            TweenInfo.new(0.03, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
+            goal
+        )
         tw:Play()
         task.wait(0.03)
     end
@@ -431,10 +429,10 @@ task.spawn(function()
                 if root.Parent == cg and not isSafeRoot(root) then
                     local s = inst.AbsoluteSize
                     local pos = inst.AbsolutePosition
-                    local sizeOK = (s.X >= 40 and s.X <= 200 and s.Y >= 40 and s.Y <= 200)
 
+                    local sizeOK = (s.X >= 40 and s.X <= 200 and s.Y >= 40 and s.Y <= 200)
                     local cam = Workspace.CurrentCamera
-                    local vp = cam and cam.ViewportSize or Vector2.new(1920,1080)
+                    local vp = cam and cam.ViewportSize or Vector2.new(1920, 1080)
 
                     local nearLeft = pos.X <= 80
                     local nearRight = (pos.X + s.X) >= (vp.X - 80)
@@ -461,15 +459,13 @@ task.wait(1.5)
 local fadeTween = TweenService:Create(
     BG,
     TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    {BackgroundTransparency = 1}
+    { BackgroundTransparency = 1 }
 )
 fadeTween:Play()
 fadeTween.Completed:Wait()
 LoadingGui:Destroy()
 
-----------------------------------------------------------------
 -- MAIN RED UI + helpers
-----------------------------------------------------------------
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "Ys2cBript_UI"
 MainGui.ResetOnSpawn = false
@@ -491,7 +487,7 @@ MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 local openTween = TweenService:Create(
     MainFrame,
     TweenInfo.new(0.3, Enum.EasingStyle.Sine, Enum.EasingDirection.Out),
-    {Size = UDim2.new(0, 520, 0, 330), Position = UDim2.new(0.5, -260, 0.5, -165)}
+    { Size = UDim2.new(0, 520, 0, 330), Position = UDim2.new(0.5, -260, 0.5, -165) }
 )
 openTween:Play()
 
@@ -553,10 +549,14 @@ CloseCorner.CornerRadius = UDim.new(0, 8)
 CloseCorner.Parent = CloseBtn
 
 CloseBtn.MouseEnter:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(200, 40, 40)}):Play()
+    TweenService:Create(CloseBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(200, 40, 40)
+    }):Play()
 end)
 CloseBtn.MouseLeave:Connect(function()
-    TweenService:Create(CloseBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(60, 0, 0)}):Play()
+    TweenService:Create(CloseBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+    }):Play()
 end)
 CloseBtn.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
@@ -593,7 +593,7 @@ ContentStroke.Parent = ContentFrame
 local function createTabButton(text, order, color)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -16, 0, 40)
-    btn.Position = UDim2.new(0, 8, 0, 8 + (order-1) * 44)
+    btn.Position = UDim2.new(0, 8, 0, 8 + (order - 1) * 44)
     btn.BackgroundColor3 = Color3.fromRGB(24, 0, 0)
     btn.BorderSizePixel = 0
     btn.Font = Enum.Font.GothamSemibold
@@ -614,12 +614,16 @@ local function createTabButton(text, order, color)
 
     btn.MouseEnter:Connect(function()
         if not btn:GetAttribute("ActiveTab") then
-            TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(40, 0, 0)}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.15), {
+                BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+            }):Play()
         end
     end)
     btn.MouseLeave:Connect(function()
         if not btn:GetAttribute("ActiveTab") then
-            TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(24, 0, 0)}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.15), {
+                BackgroundColor3 = Color3.fromRGB(24, 0, 0)
+            }):Play()
         end
     end)
 
@@ -707,7 +711,6 @@ local function createToggle(parent, text, default, callback)
     btnCorner.Parent = btn
 
     local state = default
-
     local function setState(v, fromInit)
         state = v
         btn.Text = state and "ON" or "OFF"
@@ -722,7 +725,6 @@ local function createToggle(parent, text, default, callback)
         setState(not state)
     end)
 
-    -- run callback once with current state on init
     setState(default, true)
 
     return frame
@@ -745,10 +747,14 @@ local function createButton(parent, text, callback)
     corner.Parent = btn
 
     btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(120, 0, 0)}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.15), {
+            BackgroundColor3 = Color3.fromRGB(120, 0, 0)
+        }):Play()
     end)
     btn.MouseLeave:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(60, 0, 0)}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.15), {
+            BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+        }):Play()
     end)
     btn.MouseButton1Click:Connect(function()
         pcall(callback)
@@ -842,9 +848,7 @@ local function createSlider(parent, text, min, max, default, callback)
     return frame
 end
 
-----------------------------------------------------------------
 -- TABS
-----------------------------------------------------------------
 local PlayerBtn, PlayerGlow = createTabButton("🏃 Player", 1, Color3.fromRGB(220, 80, 80))
 local CombatBtn, CombatGlow = createTabButton("🗡️ Combat", 2, Color3.fromRGB(255, 110, 110))
 local ESPBtn, ESPGlow = createTabButton("👁️ ESP", 3, Color3.fromRGB(255, 150, 150))
@@ -859,16 +863,22 @@ local function setActiveTab(btn, glow)
     for _, b in ipairs(TabButtons:GetChildren()) do
         if b:IsA("TextButton") then
             b:SetAttribute("ActiveTab", false)
-            TweenService:Create(b, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(24, 0, 0)}):Play()
+            TweenService:Create(b, TweenInfo.new(0.15), {
+                BackgroundColor3 = Color3.fromRGB(24, 0, 0)
+            }):Play()
         end
     end
+
     for _, g in ipairs(TabButtons:GetDescendants()) do
         if g:IsA("UIStroke") then
             g.Enabled = false
         end
     end
+
     btn:SetAttribute("ActiveTab", true)
-    TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(60, 0, 0)}):Play()
+    TweenService:Create(btn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+    }):Play()
     glow.Enabled = true
 end
 
@@ -884,14 +894,17 @@ PlayerBtn.MouseButton1Click:Connect(function()
     setActiveTab(PlayerBtn, PlayerGlow)
     showPage(PlayerPage)
 end)
+
 CombatBtn.MouseButton1Click:Connect(function()
     setActiveTab(CombatBtn, CombatGlow)
     showPage(CombatPage)
 end)
+
 ESPBtn.MouseButton1Click:Connect(function()
     setActiveTab(ESPBtn, ESPGlow)
     showPage(ESPPage)
 end)
+
 MiscBtn.MouseButton1Click:Connect(function()
     setActiveTab(MiscBtn, MiscGlow)
     showPage(MiscPage)
@@ -900,9 +913,7 @@ end)
 setActiveTab(PlayerBtn, PlayerGlow)
 showPage(PlayerPage)
 
-----------------------------------------------------------------
 -- REOPEN BUTTON
-----------------------------------------------------------------
 local ReopenGui = Instance.new("ScreenGui")
 ReopenGui.Name = "Ys2cBript_Reopen"
 ReopenGui.ResetOnSpawn = false
@@ -932,10 +943,14 @@ ReopenStroke.Thickness = 1.5
 ReopenStroke.Parent = ReopenBtn
 
 ReopenBtn.MouseEnter:Connect(function()
-    TweenService:Create(ReopenBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(60, 0, 0)}):Play()
+    TweenService:Create(ReopenBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(60, 0, 0)
+    }):Play()
 end)
 ReopenBtn.MouseLeave:Connect(function()
-    TweenService:Create(ReopenBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(24, 0, 0)}):Play()
+    TweenService:Create(ReopenBtn, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(24, 0, 0)
+    }):Play()
 end)
 
 ReopenBtn.MouseButton1Click:Connect(function()
@@ -943,9 +958,7 @@ ReopenBtn.MouseButton1Click:Connect(function()
     ReopenBtn.Text = MainFrame.Visible and "Close Menu" or "Open Menu"
 end)
 
-----------------------------------------------------------------
 -- PLAYER TAB
-----------------------------------------------------------------
 createSectionLabel(PlayerPage, "Movement")
 
 local speedEnabled = Settings.SpeedEnabled
@@ -1020,9 +1033,7 @@ createSlider(PlayerPage, "Jump Power", 50, 300, jumpValue, function(v)
     end
 end).LayoutOrder = jumpToggleFrame.LayoutOrder + 1
 
-----------------------------------------------------------------
--- HITBOX EXPANDER (original behavior)
-----------------------------------------------------------------
+-- HITBOX EXPANDER
 createSectionLabel(PlayerPage, "Hitbox Expander")
 
 local hitboxEnabled = Settings.HitboxEnabled
@@ -1056,9 +1067,7 @@ createSlider(PlayerPage, "Hitbox Transparency", 0, 100, hitboxTransparency * 100
     Settings.HitboxTransparency = hitboxTransparency
 end)
 
-----------------------------------------------------------------
 -- WEAPONS + AUTO USE
-----------------------------------------------------------------
 createSectionLabel(PlayerPage, "Weapons")
 
 local autoPipe = Settings.AutoPipe
@@ -1136,7 +1145,9 @@ local function isMeleeTool(tool)
         "fist","punch","club","katana","blade","axe","hammer","crowbar","rustypipe"
     }
     for _, w in ipairs(meleeWords) do
-        if name:find(w) then return true end
+        if name:find(w) then
+            return true
+        end
     end
     return false
 end
@@ -1157,7 +1168,9 @@ task.spawn(function()
             for _, tool in ipairs(char:GetChildren()) do
                 if tool:IsA("Tool") then
                     if autoUseAll or (autoUseMelee and isMeleeTool(tool)) or killAura then
-                        pcall(function() tool:Activate() end)
+                        pcall(function()
+                            tool:Activate()
+                        end)
                         firePipeRemoteIfNeeded(tool)
                     end
                 end
@@ -1166,20 +1179,18 @@ task.spawn(function()
     end
 end)
 
-----------------------------------------------------------------
 -- WORLD TOOLS / BARRIER REMOVE
-----------------------------------------------------------------
 createSectionLabel(PlayerPage, "World Tools")
 
 local barrierRemoved = Settings.BarrierRemoved
 local storedWalls = {}
 
 local WallInfoLabel = Instance.new("TextLabel")
-WallInfoLabel.Size = UDim2.new(1,-20,0,24)
+WallInfoLabel.Size = UDim2.new(1, -20, 0, 24)
 WallInfoLabel.BackgroundTransparency = 1
 WallInfoLabel.Font = Enum.Font.Gotham
 WallInfoLabel.TextSize = 13
-WallInfoLabel.TextColor3 = Color3.fromRGB(255,150,150)
+WallInfoLabel.TextColor3 = Color3.fromRGB(255, 150, 150)
 WallInfoLabel.Text = "Walls found: 0"
 WallInfoLabel.Parent = PlayerPage
 
@@ -1234,100 +1245,121 @@ task.spawn(function()
 end)
 
 ----------------------------------------------------------------
--- SURVIVABILITY / AUTO HEAL (improved)
+-- SURVIVABILITY / AUTO HEAL (EMERGENCY SAFE – TUNED)
 ----------------------------------------------------------------
 createSectionLabel(PlayerPage, "Survivability")
 
 local autoHealEnabled = Settings.AutoHealEnabled
 local healHPThreshold = Settings.AutoHealHP
+
 local healingInProgress = false
 local lastSafeCFrame = nil
+local lastHealTime = 0
+local lastHP = math.huge
+
+-- cooldown between full heals (seconds)
+local HEAL_COOLDOWN = 5
 
 local DOCTOR_CFRAME = CFrame.new(
     531.828796, 11.9497728, -205.658417,
-    0.492447019, -7.92819606e-08, -0.870342433,
-    4.87593717e-08, 1, -6.35043804e-08,
-    0.870342433, -1.11648095e-08, 0.492447019
+    0.492447019, 0, -0.870342433,
+    0, 1, 0,
+    0.870342433, 0, 0.492447019
 )
 
 local RequestSurgeryRF = NetModules:FindFirstChild("RF/RequestSurgery")
 
-local function isRagdolled(char)
-    if not char then return false end
-    local rag = char:FindFirstChild("RagdollTrigger")
-    return rag ~= nil
+local function forceNoCollide(char)
+    for _, p in ipairs(char:GetDescendants()) do
+        if p:IsA("BasePart") then
+            p.CanCollide = false
+            p.AssemblyLinearVelocity = Vector3.zero
+        end
+    end
 end
 
--- safer / more reliable auto-heal
-local function doAutoHeal()
-    if healingInProgress then return end
+local function emergencyHeal()
+    if healingInProgress or not autoHealEnabled then return end
+    if tick() - lastHealTime < HEAL_COOLDOWN then return end
+
     healingInProgress = true
+    lastHealTime = tick()
 
     local char = safeChar()
     local hum = char:FindFirstChildOfClass("Humanoid")
     local hrp = char:FindFirstChild("HumanoidRootPart")
+
     if not hum or not hrp or not RequestSurgeryRF then
         healingInProgress = false
         return
     end
-
-    -- wait until ragdoll ends (if any) to avoid teleport bugs
-    local waitStart = os.clock()
-    while isRagdolled(char) and os.clock() - waitStart < 5 do
-        task.wait(0.2)
+    if hum.Health <= 0 then
+        healingInProgress = false
+        return
     end
 
     lastSafeCFrame = hrp.CFrame
 
-    -- go to doctor
-    hrp.CFrame = DOCTOR_CFRAME + Vector3.new(0, 3, 0)
+    -- HARD TELEPORT (minimal snaps)
+    for i = 1, 2 do
+        hrp.CFrame = DOCTOR_CFRAME + Vector3.new(0, 4, 0)
+        task.wait(0.05)
+    end
 
-    local maxHealth = hum.MaxHealth
-    local t0 = os.clock()
-    local timeout = 20
+    forceNoCollide(char)
+    hum.Sit = false
 
-    while hum.Health < maxHealth and os.clock() - t0 < timeout do
+    local maxHP = hum.MaxHealth
+    local t0 = tick()
+
+    while hum.Health > 0 and hum.Health < maxHP and tick() - t0 < 8 do
         for i = 1, 4 do
             pcall(function()
                 RequestSurgeryRF:InvokeServer()
             end)
         end
-        task.wait(0.25)
+        hrp.CFrame = DOCTOR_CFRAME + Vector3.new(0, 4, 0)
+        task.wait(0.2)
     end
 
-    -- only return if HP is clearly higher than our threshold
-    if hum.Health >= math.max(healHPThreshold + 5, healHPThreshold * 1.2) and lastSafeCFrame then
+    if hum.Health > math.max(healHPThreshold + 15, healHPThreshold * 1.3)
+    and lastSafeCFrame then
         hrp.CFrame = lastSafeCFrame
     end
 
     healingInProgress = false
 end
 
-local ahToggle = createToggle(PlayerPage, "Auto Heal At Doctor", autoHealEnabled, function(v)
+local ahToggle = createToggle(PlayerPage, "Auto Heal (Emergency Safe)", autoHealEnabled, function(v)
     autoHealEnabled = v
     Settings.AutoHealEnabled = v
 end)
 
-createSlider(PlayerPage, "Auto Heal HP", 5, 60, healHPThreshold, function(v)
+createSlider(PlayerPage, "Auto Heal HP", 10, 70, healHPThreshold, function(v)
     healHPThreshold = v
     Settings.AutoHealHP = v
 end).LayoutOrder = ahToggle.LayoutOrder + 1
 
--- trigger whenever HP is low (ragdoll or not)
+-- FAST DAMAGE DETECTOR (less sensitive)
 task.spawn(function()
-    while task.wait(0.2) do
-        if not autoHealEnabled or healingInProgress then
-            continue
-        end
+    lastHP = math.huge
+
+    while task.wait(0.08) do
+        if not autoHealEnabled or healingInProgress then continue end
 
         local char = LP.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if not hum then
-            continue
-        end
+        if not hum then continue end
 
-        if hum.Health > 0 and hum.Health <= healHPThreshold then
-            doAutoHeal()
+        local hp = hum.Health
+        local delta = lastHP - hp
+        lastHP = hp
+
+        if hp <= 0 then continue end
+
+        if (hp <= healHPThreshold)
+        or (delta >= 20 and hp <= healHPThreshold + 15) then
+            emergencyHeal()
         end
     end
 end)
@@ -1338,6 +1370,7 @@ end)
 createSectionLabel(CombatPage, "Targets & Modes")
 
 local selectedTarget = nil
+local protectedPlayer = nil
 local playerNames = {}
 
 local function rebuildPlayerNames()
@@ -1353,6 +1386,7 @@ rebuildPlayerNames()
 Players.PlayerAdded:Connect(rebuildPlayerNames)
 Players.PlayerRemoving:Connect(rebuildPlayerNames)
 
+-- Kill / Drag target dropdown
 local DropdownFrame = Instance.new("Frame")
 DropdownFrame.Size = UDim2.new(1, -16, 0, 120)
 DropdownFrame.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
@@ -1399,7 +1433,7 @@ DropdownList.BorderSizePixel = 0
 DropdownList.Visible = false
 DropdownList.ClipsDescendants = true
 DropdownList.ScrollBarThickness = 4
-DropdownList.CanvasSize = UDim2.new(0,0,0,0)
+DropdownList.CanvasSize = UDim2.new(0, 0, 0, 0)
 DropdownList.Parent = DropdownFrame
 
 local DLCorner = Instance.new("UICorner")
@@ -1423,6 +1457,7 @@ local function refreshDropdown()
     end
 
     rebuildPlayerNames()
+
     for _, name in ipairs(playerNames) do
         local opt = Instance.new("TextButton")
         opt.Size = UDim2.new(1, 0, 0, 24)
@@ -1462,9 +1497,146 @@ createButton(CombatPage, "Refresh Player List", function()
     refreshDropdown()
 end)
 
-----------------------------------------------------------------
--- PLAYER INFO
-----------------------------------------------------------------
+-- PROTECTED PLAYER DROPDOWN
+local ProtectFrame = Instance.new("Frame")
+ProtectFrame.Size = UDim2.new(1, -16, 0, 120)
+ProtectFrame.BackgroundColor3 = Color3.fromRGB(20, 0, 0)
+ProtectFrame.BorderSizePixel = 0
+ProtectFrame.LayoutOrder = 2
+ProtectFrame.Parent = CombatPage
+
+local ProtectCorner = Instance.new("UICorner")
+ProtectCorner.CornerRadius = UDim.new(0, 10)
+ProtectCorner.Parent = ProtectFrame
+
+local ProtectLabel = Instance.new("TextLabel")
+ProtectLabel.Size = UDim2.new(1, -10, 0, 22)
+ProtectLabel.Position = UDim2.new(0, 10, 0, 4)
+ProtectLabel.BackgroundTransparency = 1
+ProtectLabel.Font = Enum.Font.Gotham
+ProtectLabel.TextSize = 14
+ProtectLabel.TextXAlignment = Enum.TextXAlignment.Left
+ProtectLabel.TextColor3 = Color3.fromRGB(255, 220, 220)
+ProtectLabel.Text = "Protected Player"
+ProtectLabel.Parent = ProtectFrame
+
+local ProtectButton = Instance.new("TextButton")
+ProtectButton.Size = UDim2.new(1, -20, 0, 26)
+ProtectButton.Position = UDim2.new(0, 10, 0, 32)
+ProtectButton.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+ProtectButton.BorderSizePixel = 0
+ProtectButton.Font = Enum.Font.Gotham
+ProtectButton.TextSize = 14
+ProtectButton.TextColor3 = Color3.fromRGB(255, 230, 230)
+ProtectButton.TextXAlignment = Enum.TextXAlignment.Left
+ProtectButton.Text = " None"
+ProtectButton.Parent = ProtectFrame
+
+local ProtectBtnCorner = Instance.new("UICorner")
+ProtectBtnCorner.CornerRadius = UDim.new(0, 6)
+ProtectBtnCorner.Parent = ProtectButton
+
+local ProtectList = Instance.new("ScrollingFrame")
+ProtectList.Size = UDim2.new(1, -20, 0, 65)
+ProtectList.Position = UDim2.new(0, 10, 0, 62)
+ProtectList.BackgroundColor3 = Color3.fromRGB(16, 0, 0)
+ProtectList.BorderSizePixel = 0
+ProtectList.Visible = false
+ProtectList.ClipsDescendants = true
+ProtectList.ScrollBarThickness = 4
+ProtectList.CanvasSize = UDim2.new(0, 0, 0, 0)
+ProtectList.Parent = ProtectFrame
+
+local PLCorner = Instance.new("UICorner")
+PLCorner.CornerRadius = UDim.new(0, 6)
+PLCorner.Parent = ProtectList
+
+local PLLayout = Instance.new("UIListLayout")
+PLLayout.FillDirection = Enum.FillDirection.Vertical
+PLLayout.SortOrder = Enum.SortOrder.LayoutOrder
+PLLayout.Parent = ProtectList
+
+PLLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    ProtectList.CanvasSize = UDim2.new(0, 0, 0, PLLayout.AbsoluteContentSize.Y)
+end)
+
+-- CHAT CONTROL FOR AUTOPROTECT
+local protectChatConn
+
+local function disconnectProtectChat()
+    if protectChatConn then
+        protectChatConn:Disconnect()
+        protectChatConn = nil
+    end
+end
+
+local function hookProtectChat()
+    disconnectProtectChat()
+    if not protectedPlayer then return end
+
+    local plr = Players:FindFirstChild(protectedPlayer)
+    if not plr then return end
+
+    protectChatConn = plr.Chatted:Connect(function(msg)
+        msg = string.lower(msg)
+        if msg == "start" then
+            autoProtect = true
+            Settings.AutoProtect = true
+            saveSettings()
+        elseif msg == "stop" then
+            autoProtect = false
+            Settings.AutoProtect = false
+            saveSettings()
+        end
+    end)
+end
+
+local function refreshProtectDropdown()
+    for _, c in ipairs(ProtectList:GetChildren()) do
+        if c:IsA("TextButton") then
+            c:Destroy()
+        end
+    end
+
+    rebuildPlayerNames()
+
+    for _, name in ipairs(playerNames) do
+        local opt = Instance.new("TextButton")
+        opt.Size = UDim2.new(1, 0, 0, 24)
+        opt.BackgroundColor3 = Color3.fromRGB(22, 0, 0)
+        opt.BorderSizePixel = 0
+        opt.Font = Enum.Font.Gotham
+        opt.TextSize = 14
+        opt.TextColor3 = Color3.fromRGB(255, 220, 220)
+        opt.TextXAlignment = Enum.TextXAlignment.Left
+        opt.Text = " " .. name
+        opt.Parent = ProtectList
+
+        opt.MouseEnter:Connect(function()
+            opt.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+        end)
+        opt.MouseLeave:Connect(function()
+            opt.BackgroundColor3 = Color3.fromRGB(22, 0, 0)
+        end)
+        opt.MouseButton1Click:Connect(function()
+            protectedPlayer = name
+            ProtectButton.Text = " " .. name
+            ProtectList.Visible = false
+            hookProtectChat()
+        end)
+    end
+end
+
+ProtectButton.MouseButton1Click:Connect(function()
+    if ProtectList.Visible then
+        ProtectList.Visible = false
+    else
+        refreshProtectDropdown()
+        ProtectList.Visible = true
+    end
+end)
+
+-- PLAYER INFO PANEL (extended)
 createSectionLabel(CombatPage, "Player Info")
 
 local InfoFrame = Instance.new("Frame")
@@ -1518,10 +1690,14 @@ InfoBtnCorner.CornerRadius = UDim.new(0, 6)
 InfoBtnCorner.Parent = InfoButton
 
 InfoButton.MouseEnter:Connect(function()
-    TweenService:Create(InfoButton, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(140, 0, 0)}):Play()
+    TweenService:Create(InfoButton, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(140, 0, 0)
+    }):Play()
 end)
 InfoButton.MouseLeave:Connect(function()
-    TweenService:Create(InfoButton, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(80, 0, 0)}):Play()
+    TweenService:Create(InfoButton, TweenInfo.new(0.15), {
+        BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+    }):Play()
 end)
 
 local httpAvailable = (syn and syn.request) or (http and http.request) or http_request or request
@@ -1543,7 +1719,6 @@ local function getPublicProfileInfo(userId)
     if not body then return nil end
     local ok, data = pcall(HttpService.JSONDecode, HttpService, body)
     if not ok or type(data) ~= "table" then return nil end
-
     local info = {
         created = data.created,
         description = data.description or ""
@@ -1558,15 +1733,22 @@ local function formatShortDate(iso)
     return string.format("%s-%s-%s", y, m, d)
 end
 
+local function isRagdolled(char)
+    if not char then return false end
+    return char:FindFirstChild("RagdollTrigger") ~= nil
+end
+
 local function refreshTargetInfo()
     if not selectedTarget then
         InfoLabel.Text = "No target selected."
         InfoBody.Text = ""
         InfoLabel.TextColor3 = Color3.fromRGB(255, 120, 120)
+
         task.delay(1.5, function()
             InfoLabel.Text = "Select a target above, then press 'Refresh Info'."
             InfoLabel.TextColor3 = Color3.fromRGB(255, 210, 210)
         end)
+
         return
     end
 
@@ -1575,17 +1757,18 @@ local function refreshTargetInfo()
         InfoLabel.Text = "Target not found (may have left)."
         InfoBody.Text = ""
         InfoLabel.TextColor3 = Color3.fromRGB(255, 120, 120)
+
         task.delay(1.5, function()
             InfoLabel.Text = "Select a target above, then press 'Refresh Info'."
             InfoLabel.TextColor3 = Color3.fromRGB(255, 210, 210)
         end)
+
         return
     end
 
     local char = target.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
-
     local myChar = LP.Character
     local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
 
@@ -1644,14 +1827,17 @@ local function refreshTargetInfo()
 
     InfoLabel.Text = "In-Game & Profile Info:"
     InfoLabel.TextColor3 = Color3.fromRGB(255, 210, 210)
-    InfoBody.Text = line1 .. "\n" .. line2 .. "\n" .. line3 .. "\n" .. line4 .. "\n" .. line5 .. "\n" .. line6 .. "\n" .. line7
+    InfoBody.Text = line1 .. "\n" .. line2 .. "\n" .. line3 .. "\n" .. line4 .. "\n"
+        .. line5 .. "\n" .. line6 .. "\n" .. line7
 
     if httpAvailable then
         task.spawn(function()
             local prof = getPublicProfileInfo(target.UserId)
             if not prof then return end
+
             local createdStr = formatShortDate(prof.created)
             local desc = prof.description
+
             if desc ~= "" then
                 local maxLen = 90
                 if #desc > maxLen then
@@ -1661,11 +1847,7 @@ local function refreshTargetInfo()
                 desc = "(no description)"
             end
 
-            local extra = string.format(
-                "\n\nProfile Created: %s\nBio: %s",
-                createdStr,
-                desc
-            )
+            local extra = string.format("\n\nProfile Created: %s\nBio: %s", createdStr, desc)
 
             if selectedTarget == target.Name then
                 InfoBody.Text = InfoBody.Text .. extra
@@ -1676,35 +1858,7 @@ end
 
 InfoButton.MouseButton1Click:Connect(refreshTargetInfo)
 
-----------------------------------------------------------------
--- PVP CHECK HELPER
-----------------------------------------------------------------
-local function isPlayerPVPOn(plr)
-    if not plr then return false end
-
-    local char = plr.Character
-    if char then
-        local pv1 = char:FindFirstChild("PVP")
-        local pv2 = char:FindFirstChild("IsPVPOn")
-        if pv1 and pv1.Value ~= nil then
-            return pv1.Value == true
-        end
-        if pv2 and pv2.Value ~= nil then
-            return pv2.Value == true
-        end
-    end
-
-    local pvpVal = plr:FindFirstChild("PVP")
-    if pvpVal and pvpVal.Value ~= nil then
-        return pvpVal.Value == true
-    end
-
-    return false
-end
-
-----------------------------------------------------------------
--- COMBAT MODES / FOLLOW / DRAG COMBO (PvP-aware)
-----------------------------------------------------------------
+-- COMBAT MODES + DRAG COMBO (FOLLOW => AUTO DRAG)
 createSectionLabel(CombatPage, "Combat Modes")
 
 local followTarget = Settings.FollowTarget
@@ -1732,12 +1886,6 @@ end
 local function dragComboLoop()
     while autoDragCombo do
         if not selectedTarget then
-            task.wait(0.3)
-            continue
-        end
-
-        local target = Players:FindFirstChild(selectedTarget)
-        if not target or not isPlayerPVPOn(target) then
             task.wait(0.3)
             continue
         end
@@ -1805,19 +1953,20 @@ task.spawn(function()
     end
 end)
 
--- smooth TP drag, PvP-aware
 task.spawn(function()
     while true do
         if autoDragCombo and selectedTarget then
             local target = Players:FindFirstChild(selectedTarget)
-            if target and isPlayerPVPOn(target) and target.Character then
+            if target and target.Character then
                 local tHRP = target.Character:FindFirstChild("HumanoidRootPart")
                 if tHRP then
-                    local char = LP.Character or safeChar()
+                    local char = LP.Character
+                    if not char or not char:FindFirstChild("HumanoidRootPart") then
+                        char = safeChar()
+                    end
                     local hrp = char:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        local targetCFrame = tHRP.CFrame * CFrame.new(0, upOff, frontOff)
-                        hrp.CFrame = hrp.CFrame:Lerp(targetCFrame, 0.45)
+                        hrp.CFrame = tHRP.CFrame * CFrame.new(0, upOff, frontOff)
                     end
                 end
             end
@@ -1836,6 +1985,53 @@ createToggle(CombatPage, "Auto Drag Combo (TP front stick)", autoDragCombo, func
     end
 end)
 
+-- AUTO PROTECT SYSTEM
+local autoProtect = Settings.AutoProtect
+
+local protectToggle = createToggle(CombatPage, "Auto Protect Protected Player", autoProtect, function(v)
+    autoProtect = v
+    Settings.AutoProtect = v
+end)
+
+local function getNearestEnemyToProtected(maxDist)
+    if not protectedPlayer then return nil end
+    local protPlr = Players:FindFirstChild(protectedPlayer)
+    if not protPlr or not protPlr.Character then return nil end
+
+    local protHRP = protPlr.Character:FindFirstChild("HumanoidRootPart")
+    if not protHRP then return nil end
+
+    local nearest, nearestD = nil, maxDist or 40
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LP and p ~= protPlr and p.Character then
+            local th = p.Character:FindFirstChild("HumanoidRootPart")
+            if th then
+                local d = (th.Position - protHRP.Position).Magnitude
+                if d < nearestD then
+                    nearestD = d
+                    nearest = p
+                end
+            end
+        end
+    end
+    return nearest
+end
+
+-- Auto-protect loop: keep selectedTarget on nearest enemy to protected player
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        if not autoProtect or not protectedPlayer then
+            continue
+        end
+
+        local enemy = getNearestEnemyToProtected(40)
+        if enemy then
+            selectedTarget = enemy.Name
+        end
+    end
+end)
+
 RunService.Heartbeat:Connect(function(dt)
     local char = LP.Character
     if not char then return end
@@ -1846,49 +2042,54 @@ RunService.Heartbeat:Connect(function(dt)
     if killAura and char then
         for _, tool in ipairs(char:GetChildren()) do
             if tool:IsA("Tool") and isMeleeTool(tool) then
-                local target = selectedTarget and Players:FindFirstChild(selectedTarget) or nil
-                if not target or isPlayerPVPOn(target) then
-                    pcall(function() tool:Activate() end)
-                    firePipeRemoteIfNeeded(tool)
-                end
+                pcall(function()
+                    tool:Activate()
+                end)
+                firePipeRemoteIfNeeded(tool)
             end
         end
     end
 
     if followTarget and selectedTarget and hrp then
-        local targetPlayer = Players:FindFirstChild(selectedTarget)
-        if targetPlayer and isPlayerPVPOn(targetPlayer) and targetPlayer.Character then
-            for _, part in ipairs(char:GetDescendants()) do
-                if part:IsA("BasePart") then
-                    part.CanCollide = false
-                end
+        for _, part in ipairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
             end
+        end
 
+        local targetPlayer = Players:FindFirstChild(selectedTarget)
+        if targetPlayer and targetPlayer.Character then
             local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
             if targetHRP then
                 local t = tick()
-                local angle = t % (2*math.pi)
+                local angle = t % (2 * math.pi)
                 local offset = Vector3.new(
                     math.cos(angle) * orbitRadius,
                     0,
                     math.sin(angle) * orbitRadius
                 )
 
-                local desiredPos = targetHRP.Position + offset + Vector3.new(0, 1.5, 0)
+                local groundY = math.max(targetHRP.Position.Y - 3, hrp.Position.Y - 10)
+                local desiredY = math.max(groundY, hrp.Position.Y - 2)
+                local desiredPos = Vector3.new(
+                    targetHRP.Position.X,
+                    desiredY,
+                    targetHRP.Position.Z
+                ) + offset
+
                 local moveDir = desiredPos - hrp.Position
                 local moveDist = moveDir.Magnitude
-                if moveDist > 0.3 then
+
+                if moveDist > 0.5 then
                     local step = math.min(moveDist, followSpeed * (dt or 0.016))
-                    hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(hrp.Position + moveDir.Unit * step, targetHRP.Position), 0.6)
+                    hrp.CFrame = hrp.CFrame + moveDir.Unit * step
                 end
             end
         end
     end
 end)
 
-----------------------------------------------------------------
 -- ESP TAB
-----------------------------------------------------------------
 createSectionLabel(ESPPage, "ESP")
 
 local espEnabled = Settings.ESPEnabled
@@ -1961,9 +2162,7 @@ createToggle(ESPPage, "Player ESP", espEnabled, function(v)
     end
 end)
 
-----------------------------------------------------------------
 -- MISC TAB
-----------------------------------------------------------------
 createSectionLabel(MiscPage, "Client Tools")
 
 createButton(MiscPage, "Rejoin Same Server", function()
@@ -1991,7 +2190,7 @@ TimeLabel.Parent = MiscPage
 task.spawn(function()
     while true do
         local diff = os.time() - sessionStart
-        local mins = math.floor(diff/60)
+        local mins = math.floor(diff / 60)
         local secs = diff % 60
         TimeLabel.Text = string.format("Session: %dm %ds", mins, secs)
         task.wait(1)
