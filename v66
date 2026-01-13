@@ -227,7 +227,6 @@ local Settings = {
     HitboxTransparency = 0.65,
     AutoUseAll = false,
     AutoUseMelee = false,
-    KillAura = false,
     HitInterval = 0.15,
     BarrierRemoved = false,
     AutoHealEnabled = false,
@@ -236,7 +235,6 @@ local Settings = {
     FollowSpeed = 45,
     OrbitRadius = 5,
     ESPEnabled = false,
-    AutoPipe = false,
     AutoDragCombo = false,
     AutoProtect = false,
 }
@@ -376,11 +374,9 @@ task.spawn(function()
             goal
         )
         tw:Play()
-        task.wait(0.03 + math.random() * 0.005) -- tiny randomization
+        task.wait(0.03 + math.random() * 0.005)
     end
 end)
-
--- NOTE: Vertex loading and Vertex UI cleaner REMOVED
 
 task.wait(1.5)
 local fadeTween = TweenService:Create(
@@ -777,7 +773,9 @@ local function createSlider(parent, text, min, max, default, callback)
     return frame
 end
 
+----------------------------------------------------------------
 -- TABS
+----------------------------------------------------------------
 local PlayerBtn, PlayerGlow = createTabButton("🏃 Player", 1, Color3.fromRGB(220, 80, 80))
 local CombatBtn, CombatGlow = createTabButton("🗡️ Combat", 2, Color3.fromRGB(255, 110, 110))
 local ESPBtn, ESPGlow = createTabButton("👁️ ESP", 3, Color3.fromRGB(255, 150, 150))
@@ -1003,60 +1001,6 @@ end)
 -- WEAPONS + AUTO USE
 createSectionLabel(PlayerPage, "Weapons")
 
-local autoPipe = Settings.AutoPipe
-
-local function hasPipe()
-    local char = LP.Character
-    if char then
-        for _, c in ipairs(char:GetChildren()) do
-            if c:IsA("Tool") and c.Name == "RustyPipe" then
-                return true
-            end
-        end
-    end
-    for _, c in ipairs(LP.Backpack:GetChildren()) do
-        if c:IsA("Tool") and c.Name == "RustyPipe" then
-            return true
-        end
-    end
-    return false
-end
-
-local function getPipeInWorkspace()
-    for _, inst in ipairs(Workspace:GetDescendants()) do
-        if inst:IsA("Tool") and inst.Name == "RustyPipe" then
-            return inst
-        end
-    end
-end
-
-createToggle(PlayerPage, "Auto RustyPipe (Keep Picking Up 'RustyPipe')", autoPipe, function(v)
-    autoPipe = v
-    Settings.AutoPipe = v
-end)
-
-task.spawn(function()
-    while task.wait(0.5 + math.random() * 0.03) do
-        if autoPipe and not hasPipe() then
-            local pipe = getPipeInWorkspace()
-            local char = safeChar()
-            local hrp = char and char:FindFirstChild("HumanoidRootPart")
-            if pipe and hrp then
-                local oldCFrame = hrp.CFrame
-                local handle = pipe:FindFirstChild("Handle")
-                local targetPart = handle or (pipe:IsA("BasePart") and pipe or nil)
-
-                if targetPart and targetPart:IsDescendantOf(Workspace) then
-                    hrp.CFrame = targetPart.CFrame + Vector3.new(0, 2, 0)
-                    task.wait(0.2 + math.random() * 0.02)
-                end
-                hrp.CFrame = oldCFrame
-            end
-        end
-    end
-end)
-
-local killAura = Settings.KillAura
 local autoUseAll = Settings.AutoUseAll
 local autoUseMelee = Settings.AutoUseMelee
 local hitInterval = Settings.HitInterval
@@ -1101,7 +1045,7 @@ task.spawn(function()
         if char then
             for _, tool in ipairs(char:GetChildren()) do
                 if tool:IsA("Tool") then
-                    if autoUseAll or (autoUseMelee and isMeleeTool(tool)) or killAura then
+                    if autoUseAll or (autoUseMelee and isMeleeTool(tool)) then
                         pcall(function()
                             tool:Activate()
                         end)
@@ -1504,72 +1448,9 @@ local function disconnectProtectChat()
     end
 end
 
-local function hookProtectChat()
-    disconnectProtectChat()
-    if not protectedPlayer then return end
-
-    local plr = Players:FindFirstChild(protectedPlayer)
-    if not plr then return end
-
-    protectChatConn = plr.Chatted:Connect(function(msg)
-        msg = string.lower(msg)
-        if msg == "start" then
-            autoProtect = true
-            Settings.AutoProtect = true
-            saveSettings()
-        elseif msg == "stop" then
-            autoProtect = false
-            Settings.AutoProtect = false
-            saveSettings()
-        end
-    end)
-end
-
-local function refreshProtectDropdown()
-    for _, c in ipairs(ProtectList:GetChildren()) do
-        if c:IsA("TextButton") then
-            c:Destroy()
-        end
-    end
-
-    rebuildPlayerNames()
-    for _, name in ipairs(playerNames) do
-        local opt = Instance.new("TextButton")
-        opt.Size = UDim2.new(1, 0, 0, 24)
-        opt.BackgroundColor3 = Color3.fromRGB(22, 0, 0)
-        opt.BorderSizePixel = 0
-        opt.Font = Enum.Font.Gotham
-        opt.TextSize = 14
-        opt.TextColor3 = Color3.fromRGB(255, 220, 220)
-        opt.TextXAlignment = Enum.TextXAlignment.Left
-        opt.Text = " " .. name
-        opt.Parent = ProtectList
-
-        opt.MouseEnter:Connect(function()
-            opt.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
-        end)
-        opt.MouseLeave:Connect(function()
-            opt.BackgroundColor3 = Color3.fromRGB(22, 0, 0)
-        end)
-        opt.MouseButton1Click:Connect(function()
-            protectedPlayer = name
-            ProtectButton.Text = " " .. name
-            ProtectList.Visible = false
-            hookProtectChat()
-        end)
-    end
-end
-
-ProtectButton.MouseButton1Click:Connect(function()
-    if ProtectList.Visible then
-        ProtectList.Visible = false
-    else
-        refreshProtectDropdown()
-        ProtectList.Visible = true
-    end
-end)
-
+----------------------------------------------------------------
 -- PLAYER INFO PANEL (extended)
+----------------------------------------------------------------
 createSectionLabel(CombatPage, "Player Info")
 
 local InfoFrame = Instance.new("Frame")
@@ -1786,17 +1667,14 @@ end
 
 InfoButton.MouseButton1Click:Connect(refreshTargetInfo)
 
--- COMBAT MODES + DRAG COMBO (FOLLOW => AUTO DRAG)
+----------------------------------------------------------------
+-- COMBAT MODES + DRAG COMBO
+----------------------------------------------------------------
 createSectionLabel(CombatPage, "Combat Modes")
 
 local followTarget = Settings.FollowTarget
 local followSpeed = Settings.FollowSpeed
 local orbitRadius = Settings.OrbitRadius
-
-createToggle(CombatPage, "Kill Aura (Auto Attack)", killAura, function(v)
-    killAura = v
-    Settings.KillAura = v
-end)
 
 local autoDragCombo = Settings.AutoDragCombo
 local punching = false
@@ -1893,7 +1771,6 @@ task.spawn(function()
                     end
                     local hrp = char:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        -- quick front-stick TP, but keep small random on Y
                         hrp.CFrame = tHRP.CFrame *
                             CFrame.new(0, upOff + (math.random() * 0.05), frontOff)
                     end
@@ -1914,12 +1791,125 @@ createToggle(CombatPage, "Auto Drag Combo (TP front stick)", autoDragCombo, func
     end
 end)
 
--- AUTO PROTECT SYSTEM
+----------------------------------------------------------------
+-- AUTO PROTECT SYSTEM (chat /start, /stop, /attack_<user>)
+----------------------------------------------------------------
 local autoProtect = Settings.AutoProtect
+local forcedProtectTargetName = nil
 
 local protectToggle = createToggle(CombatPage, "Auto Protect Protected Player", autoProtect, function(v)
     autoProtect = v
     Settings.AutoProtect = v
+    saveSettings()
+end)
+
+local function hookProtectChat()
+    disconnectProtectChat()
+    if not protectedPlayer then return end
+
+    local plr = Players:FindFirstChild(protectedPlayer)
+    if not plr then return end
+
+    -- Protected player's chat controls auto protect
+    protectChatConn = plr.Chatted:Connect(function(msg)
+        if type(msg) ~= "string" then return end
+
+        local rawMsg = msg
+        local lowerMsg = string.lower(rawMsg)
+
+        -- allow both DisplayName and Name for these
+        if lowerMsg == "/start" then
+            autoProtect = true
+            Settings.AutoProtect = true
+            saveSettings()
+
+        elseif lowerMsg == "/stop" then
+            autoProtect = false
+            Settings.AutoProtect = false
+            forcedProtectTargetName = nil
+            saveSettings()
+
+        elseif lowerMsg:sub(1, 8) == "/attack_" then
+            -- text after "/attack_"
+            local userPart = rawMsg:sub(9)
+            userPart = userPart:gsub("%s+", "")
+
+            if userPart == "" then
+                forcedProtectTargetName = nil
+                return
+            end
+
+            -- try to resolve this to a real Player, by Name OR DisplayName
+            local resolved = nil
+            for _, p in ipairs(Players:GetPlayers()) do
+                if string.lower(p.Name) == string.lower(userPart) then
+                    resolved = p
+                    break
+                end
+            end
+            if not resolved then
+                for _, p in ipairs(Players:GetPlayers()) do
+                    if string.lower(p.DisplayName) == string.lower(userPart) then
+                        resolved = p
+                        break
+                    end
+                end
+            end
+
+            if resolved then
+                -- store Roblox Name so FindFirstChild works reliably
+                forcedProtectTargetName = resolved.Name
+            else
+                forcedProtectTargetName = nil
+            end
+        end
+    end)
+end
+
+local function refreshProtectDropdown()
+    for _, c in ipairs(ProtectList:GetChildren()) do
+        if c:IsA("TextButton") then
+            c:Destroy()
+        end
+    end
+
+    rebuildPlayerNames()
+    for _, name in ipairs(playerNames) do
+        local opt = Instance.new("TextButton")
+        opt.Size = UDim2.new(1, 0, 0, 24)
+        opt.BackgroundColor3 = Color3.fromRGB(22, 0, 0)
+        opt.BorderSizePixel = 0
+        opt.Font = Enum.Font.Gotham
+        opt.TextSize = 14
+        opt.TextColor3 = Color3.fromRGB(255, 220, 220)
+        opt.TextXAlignment = Enum.TextXAlignment.Left
+        opt.Text = " " .. name
+        opt.Parent = ProtectList
+
+        opt.MouseEnter:Connect(function()
+            opt.BackgroundColor3 = Color3.fromRGB(40, 0, 0)
+        end)
+        opt.MouseLeave:Connect(function()
+            opt.BackgroundColor3 = Color3.fromRGB(22, 0, 0)
+        end)
+        opt.MouseButton1Click:Connect(function()
+            protectedPlayer = name
+            ProtectButton.Text = " " .. name
+            ProtectList.Visible = false
+
+            forcedProtectTargetName = nil
+            hookProtectChat()
+        end)
+    end
+end
+
+ProtectButton.MouseButton1Click:Connect(function()
+    if ProtectList.Visible then
+        ProtectList.Visible = false
+    else
+        refreshProtectDropdown()
+        ProtectList.Visible = true
+    end
 end)
 
 local function getNearestEnemyToProtected(maxDist)
@@ -1946,7 +1936,7 @@ local function getNearestEnemyToProtected(maxDist)
     return nearest
 end
 
--- Auto-protect loop: keep selectedTarget on nearest enemy to protected player
+-- Auto-protect loop: keep selectedTarget on forced attack target or nearest enemy
 task.spawn(function()
     while true do
         task.wait(0.2 + math.random() * 0.02)
@@ -1954,7 +1944,22 @@ task.spawn(function()
             continue
         end
 
-        local enemy = getNearestEnemyToProtected(40)
+        local enemy
+
+        if forcedProtectTargetName then
+            -- Try to lock to the specific username requested
+            local p = Players:FindFirstChild(forcedProtectTargetName)
+            if p and p.Character and p ~= LP then
+                enemy = p
+            else
+                -- If that user isn't valid in server, fallback to nearest enemy
+                enemy = getNearestEnemyToProtected(40)
+            end
+        else
+            -- Normal behavior: nearest enemy to the protected player
+            enemy = getNearestEnemyToProtected(40)
+        end
+
         if enemy then
             selectedTarget = enemy.Name
         end
@@ -1965,19 +1970,7 @@ RunService.Heartbeat:Connect(function(dt)
     local char = LP.Character
     if not char then return end
 
-    local hum = char:FindFirstChildOfClass("Humanoid")
     local hrp = char:FindFirstChild("HumanoidRootPart")
-
-    if killAura and char then
-        for _, tool in ipairs(char:GetChildren()) do
-            if tool:IsA("Tool") and isMeleeTool(tool) then
-                pcall(function()
-                    tool:Activate()
-                end)
-                firePipeRemoteIfNeeded(tool)
-            end
-        end
-    end
 
     if followTarget and selectedTarget and hrp then
         -- noclip
