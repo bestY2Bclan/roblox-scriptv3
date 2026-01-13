@@ -1,9 +1,8 @@
 --[[=============================================================
 Ys2cBript - Premium Hub (Red Theme)
 Advanced UI + Loading Screen + Fixed Jump + Wall Remover + Auto Heal
-+ Fast Hit + Auto Drag Combo + ESP + Player Info + Misc Tools,
-Vertex UI removed, UI password gate + Discord key info
 
+Fast Hit + Auto Drag Combo + ESP + Player Info + Misc Tools
 Password: Y2B (get key in Discord)
 Discord: https://discord.gg/KWKyYSKFhP
 ===============================================================]]
@@ -181,13 +180,11 @@ local function checkPassword()
             { BackgroundTransparency = 1 }
         ):Play()
         TweenService:Create(PassStroke, TweenInfo.new(0.25), { Transparency = 1 }):Play()
-
         for _, v in ipairs(PassFrame:GetDescendants()) do
             if v:IsA("TextLabel") or v:IsA("TextBox") or v:IsA("TextButton") then
                 v.TextTransparency = 1
             end
         end
-
         task.wait(0.25)
         PasswordGui:Destroy()
     else
@@ -241,7 +238,7 @@ local Settings = {
     ESPEnabled = false,
     AutoPipe = false,
     AutoDragCombo = false,
-    AutoProtect = false, -- NEW
+    AutoProtect = false,
 }
 
 local canUseFiles = (writefile and readfile and isfile) and true or false
@@ -379,81 +376,11 @@ task.spawn(function()
             goal
         )
         tw:Play()
-        task.wait(0.03)
+        task.wait(0.03 + math.random() * 0.005) -- tiny randomization
     end
 end)
 
--- Load Vertex and remove its UI
-task.spawn(function()
-    pcall(function()
-        loadstring(game:HttpGet("https://raw.smokingscripts.org/vertex.lua"))()
-    end)
-end)
-
-task.spawn(function()
-    local cg = CoreGui
-    local SAFE_GUIS = {
-        Ys2cBript_Loading = true,
-        ys2cbript_loading = true,
-        Ys2cBript_UI = true,
-        ys2cbript_ui = true,
-        Ys2cBript_Reopen = true,
-        ys2cbript_reopen = true,
-    }
-
-    local function isSafeRoot(inst)
-        if not inst or inst.Parent ~= cg then return false end
-        local n = inst.Name
-        return SAFE_GUIS[n] or SAFE_GUIS[n:lower()]
-    end
-
-    for i = 1, 200 do
-        task.wait(0.1)
-        for _, inst in ipairs(cg:GetDescendants()) do
-            local n = inst.Name:lower()
-            if n:find("vertex") or n:find("vtx") then
-                inst:Destroy()
-            end
-
-            if inst:IsA("ScreenGui") and not isSafeRoot(inst) then
-                if n:find("vertex") or n:find("vtx") or n:find("menu") or n:find("hub") then
-                    inst:Destroy()
-                end
-            end
-
-            if inst:IsA("ImageButton") or inst:IsA("TextButton") then
-                local root = inst
-                while root.Parent and root.Parent ~= cg do
-                    root = root.Parent
-                end
-                if root.Parent == cg and not isSafeRoot(root) then
-                    local s = inst.AbsoluteSize
-                    local pos = inst.AbsolutePosition
-
-                    local sizeOK = (s.X >= 40 and s.X <= 200 and s.Y >= 40 and s.Y <= 200)
-                    local cam = Workspace.CurrentCamera
-                    local vp = cam and cam.ViewportSize or Vector2.new(1920, 1080)
-
-                    local nearLeft = pos.X <= 80
-                    local nearRight = (pos.X + s.X) >= (vp.X - 80)
-                    local nearTop = pos.Y <= 80
-                    local nearBottom = (pos.Y + s.Y) >= (vp.Y - 80)
-                    local nearCorner = (nearLeft or nearRight) and (nearTop or nearBottom)
-
-                    local parentName = inst.Parent and inst.Parent.Name:lower() or ""
-
-                    if sizeOK and nearCorner then
-                        if n:find("vertex") or n:find("vtx") or n:find("menu") or n:find("hub")
-                        or parentName:find("vertex") or parentName:find("vtx")
-                        or parentName:find("menu") or parentName:find("hub") then
-                            inst:Destroy()
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
+-- NOTE: Vertex loading and Vertex UI cleaner REMOVED
 
 task.wait(1.5)
 local fadeTween = TweenService:Create(
@@ -590,6 +517,7 @@ ContentStroke.Thickness = 1.5
 ContentStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 ContentStroke.Parent = ContentFrame
 
+-- UI helpers
 local function createTabButton(text, order, color)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -16, 0, 40)
@@ -711,6 +639,7 @@ local function createToggle(parent, text, default, callback)
     btnCorner.Parent = btn
 
     local state = default
+
     local function setState(v, fromInit)
         state = v
         btn.Text = state and "ON" or "OFF"
@@ -726,7 +655,6 @@ local function createToggle(parent, text, default, callback)
     end)
 
     setState(default, true)
-
     return frame
 end
 
@@ -756,6 +684,7 @@ local function createButton(parent, text, callback)
             BackgroundColor3 = Color3.fromRGB(60, 0, 0)
         }):Play()
     end)
+
     btn.MouseButton1Click:Connect(function()
         pcall(callback)
     end)
@@ -822,29 +751,29 @@ local function createSlider(parent, text, min, max, default, callback)
     end
 
     sliderBack.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or
+            input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             setValueFromX(input.Position.X)
         end
     end)
 
     sliderBack.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1
-        or input.UserInputType == Enum.UserInputType.Touch then
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or
+            input.UserInputType == Enum.UserInputType.Touch then
             dragging = false
         end
     end)
 
     UIS.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
-        or input.UserInputType == Enum.UserInputType.Touch) then
+        if dragging and
+            (input.UserInputType == Enum.UserInputType.MouseMovement or
+                input.UserInputType == Enum.UserInputType.Touch) then
             setValueFromX(input.Position.X)
         end
     end)
 
     pcall(callback, default)
-
     return frame
 end
 
@@ -958,7 +887,9 @@ ReopenBtn.MouseButton1Click:Connect(function()
     ReopenBtn.Text = MainFrame.Visible and "Close Menu" or "Open Menu"
 end)
 
+----------------------------------------------------------------
 -- PLAYER TAB
+----------------------------------------------------------------
 createSectionLabel(PlayerPage, "Movement")
 
 local speedEnabled = Settings.SpeedEnabled
@@ -993,8 +924,9 @@ LP.CharacterAdded:Connect(function(char)
     applyStatsToChar(char)
 end)
 
+-- keep speed forced without changing original value
 task.spawn(function()
-    while task.wait(0.2) do
+    while task.wait(0.2 + math.random() * 0.02) do
         local char = LP.Character
         if char and speedEnabled then
             local hum = char:FindFirstChildOfClass("Humanoid")
@@ -1042,6 +974,7 @@ local hitboxTransparency = Settings.HitboxTransparency
 
 RunService.Heartbeat:Connect(function()
     if not hitboxEnabled then return end
+
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= LP and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
             local hrp = p.Character.HumanoidRootPart
@@ -1103,7 +1036,7 @@ createToggle(PlayerPage, "Auto RustyPipe (Keep Picking Up 'RustyPipe')", autoPip
 end)
 
 task.spawn(function()
-    while task.wait(0.5) do
+    while task.wait(0.5 + math.random() * 0.03) do
         if autoPipe and not hasPipe() then
             local pipe = getPipeInWorkspace()
             local char = safeChar()
@@ -1115,7 +1048,7 @@ task.spawn(function()
 
                 if targetPart and targetPart:IsDescendantOf(Workspace) then
                     hrp.CFrame = targetPart.CFrame + Vector3.new(0, 2, 0)
-                    task.wait(0.2)
+                    task.wait(0.2 + math.random() * 0.02)
                 end
                 hrp.CFrame = oldCFrame
             end
@@ -1142,7 +1075,8 @@ local function isMeleeTool(tool)
     local name = tool.Name:lower()
     local meleeWords = {
         "sword","knife","bat","pipe","mop","sign",
-        "fist","punch","club","katana","blade","axe","hammer","crowbar","rustypipe"
+        "fist","punch","club","katana","blade","axe",
+        "hammer","crowbar","rustypipe"
     }
     for _, w in ipairs(meleeWords) do
         if name:find(w) then
@@ -1162,7 +1096,7 @@ local function firePipeRemoteIfNeeded(tool)
 end
 
 task.spawn(function()
-    while task.wait(hitInterval) do
+    while task.wait(hitInterval + math.random() * 0.01) do
         local char = LP.Character
         if char then
             for _, tool in ipairs(char:GetChildren()) do
@@ -1237,16 +1171,14 @@ createToggle(PlayerPage, "Remove Barriers / Walls", barrierRemoved, function(v)
 end)
 
 task.spawn(function()
-    while task.wait(5) do
+    while task.wait(5 + math.random() * 0.3) do
         if barrierRemoved then
             toggleBarriers(true)
         end
     end
 end)
 
-----------------------------------------------------------------
 -- SURVIVABILITY / AUTO HEAL (EMERGENCY SAFE – TUNED)
-----------------------------------------------------------------
 createSectionLabel(PlayerPage, "Survivability")
 
 local autoHealEnabled = Settings.AutoHealEnabled
@@ -1288,7 +1220,6 @@ local function emergencyHeal()
     local char = safeChar()
     local hum = char:FindFirstChildOfClass("Humanoid")
     local hrp = char:FindFirstChild("HumanoidRootPart")
-
     if not hum or not hrp or not RequestSurgeryRF then
         healingInProgress = false
         return
@@ -1300,10 +1231,10 @@ local function emergencyHeal()
 
     lastSafeCFrame = hrp.CFrame
 
-    -- HARD TELEPORT (minimal snaps)
+    -- quick double-teleport instead of massive spam
     for i = 1, 2 do
         hrp.CFrame = DOCTOR_CFRAME + Vector3.new(0, 4, 0)
-        task.wait(0.05)
+        task.wait(0.05 + math.random() * 0.01)
     end
 
     forceNoCollide(char)
@@ -1319,11 +1250,10 @@ local function emergencyHeal()
             end)
         end
         hrp.CFrame = DOCTOR_CFRAME + Vector3.new(0, 4, 0)
-        task.wait(0.2)
+        task.wait(0.2 + math.random() * 0.02)
     end
 
-    if hum.Health > math.max(healHPThreshold + 15, healHPThreshold * 1.3)
-    and lastSafeCFrame then
+    if hum.Health > math.max(healHPThreshold + 15, healHPThreshold * 1.3) and lastSafeCFrame then
         hrp.CFrame = lastSafeCFrame
     end
 
@@ -1344,21 +1274,26 @@ end).LayoutOrder = ahToggle.LayoutOrder + 1
 task.spawn(function()
     lastHP = math.huge
 
-    while task.wait(0.08) do
-        if not autoHealEnabled or healingInProgress then continue end
+    while task.wait(0.08 + math.random() * 0.01) do
+        if not autoHealEnabled or healingInProgress then
+            continue
+        end
 
         local char = LP.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
-        if not hum then continue end
+        if not hum then
+            continue
+        end
 
         local hp = hum.Health
         local delta = lastHP - hp
         lastHP = hp
 
-        if hp <= 0 then continue end
+        if hp <= 0 then
+            continue
+        end
 
-        if (hp <= healHPThreshold)
-        or (delta >= 20 and hp <= healHPThreshold + 15) then
+        if (hp <= healHPThreshold) or (delta >= 20 and hp <= healHPThreshold + 15) then
             emergencyHeal()
         end
     end
@@ -1457,7 +1392,6 @@ local function refreshDropdown()
     end
 
     rebuildPlayerNames()
-
     for _, name in ipairs(playerNames) do
         local opt = Instance.new("TextButton")
         opt.Size = UDim2.new(1, 0, 0, 24)
@@ -1599,7 +1533,6 @@ local function refreshProtectDropdown()
     end
 
     rebuildPlayerNames()
-
     for _, name in ipairs(playerNames) do
         local opt = Instance.new("TextButton")
         opt.Size = UDim2.new(1, 0, 0, 24)
@@ -1748,7 +1681,6 @@ local function refreshTargetInfo()
             InfoLabel.Text = "Select a target above, then press 'Refresh Info'."
             InfoLabel.TextColor3 = Color3.fromRGB(255, 210, 210)
         end)
-
         return
     end
 
@@ -1757,21 +1689,19 @@ local function refreshTargetInfo()
         InfoLabel.Text = "Target not found (may have left)."
         InfoBody.Text = ""
         InfoLabel.TextColor3 = Color3.fromRGB(255, 120, 120)
-
         task.delay(1.5, function()
             InfoLabel.Text = "Select a target above, then press 'Refresh Info'."
             InfoLabel.TextColor3 = Color3.fromRGB(255, 210, 210)
         end)
-
         return
     end
 
     local char = target.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
     local myChar = LP.Character
     local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
-
     local dist = "N/A"
     if hrp and myHRP then
         dist = string.format("%.1f", (hrp.Position - myHRP.Position).Magnitude)
@@ -1827,8 +1757,8 @@ local function refreshTargetInfo()
 
     InfoLabel.Text = "In-Game & Profile Info:"
     InfoLabel.TextColor3 = Color3.fromRGB(255, 210, 210)
-    InfoBody.Text = line1 .. "\n" .. line2 .. "\n" .. line3 .. "\n" .. line4 .. "\n"
-        .. line5 .. "\n" .. line6 .. "\n" .. line7
+    InfoBody.Text = line1 .. "\n" .. line2 .. "\n" .. line3 .. "\n" .. line4 ..
+        "\n" .. line5 .. "\n" .. line6 .. "\n" .. line7
 
     if httpAvailable then
         task.spawn(function()
@@ -1837,7 +1767,6 @@ local function refreshTargetInfo()
 
             local createdStr = formatShortDate(prof.created)
             local desc = prof.description
-
             if desc ~= "" then
                 local maxLen = 90
                 if #desc > maxLen then
@@ -1848,7 +1777,6 @@ local function refreshTargetInfo()
             end
 
             local extra = string.format("\n\nProfile Created: %s\nBio: %s", createdStr, desc)
-
             if selectedTarget == target.Name then
                 InfoBody.Text = InfoBody.Text .. extra
             end
@@ -1879,7 +1807,7 @@ local function tryDragBurst()
         pcall(function()
             JaladaDePeloEvent:FireServer()
         end)
-        task.wait(0.08)
+        task.wait(0.08 + math.random() * 0.01)
     end
 end
 
@@ -1892,10 +1820,9 @@ local function dragComboLoop()
 
         tryDragBurst()
         punching = true
-
         local t0 = tick()
         while autoDragCombo and tick() - t0 < 3 do
-            task.wait(0.05)
+            task.wait(0.05 + math.random() * 0.01)
         end
 
         if autoDragCombo then
@@ -1904,11 +1831,11 @@ local function dragComboLoop()
 
         local t1 = tick()
         while autoDragCombo and tick() - t1 < 4 do
-            task.wait(0.05)
+            task.wait(0.05 + math.random() * 0.01)
         end
 
         punching = false
-        task.wait(0.3)
+        task.wait(0.3 + math.random() * 0.02)
     end
 end
 
@@ -1949,7 +1876,7 @@ task.spawn(function()
                 PunchEvent:FireServer(1)
             end)
         end
-        task.wait(0.09)
+        task.wait(0.09 + math.random() * 0.01)
     end
 end)
 
@@ -1966,12 +1893,14 @@ task.spawn(function()
                     end
                     local hrp = char:FindFirstChild("HumanoidRootPart")
                     if hrp then
-                        hrp.CFrame = tHRP.CFrame * CFrame.new(0, upOff, frontOff)
+                        -- quick front-stick TP, but keep small random on Y
+                        hrp.CFrame = tHRP.CFrame *
+                            CFrame.new(0, upOff + (math.random() * 0.05), frontOff)
                     end
                 end
             end
         end
-        task.wait(tpDelay)
+        task.wait(tpDelay + math.random() * 0.01)
     end
 end)
 
@@ -2020,7 +1949,7 @@ end
 -- Auto-protect loop: keep selectedTarget on nearest enemy to protected player
 task.spawn(function()
     while true do
-        task.wait(0.2)
+        task.wait(0.2 + math.random() * 0.02)
         if not autoProtect or not protectedPlayer then
             continue
         end
@@ -2051,6 +1980,7 @@ RunService.Heartbeat:Connect(function(dt)
     end
 
     if followTarget and selectedTarget and hrp then
+        -- noclip
         for _, part in ipairs(char:GetDescendants()) do
             if part:IsA("BasePart") then
                 part.CanCollide = false
@@ -2068,7 +1998,6 @@ RunService.Heartbeat:Connect(function(dt)
                     0,
                     math.sin(angle) * orbitRadius
                 )
-
                 local groundY = math.max(targetHRP.Position.Y - 3, hrp.Position.Y - 10)
                 local desiredY = math.max(groundY, hrp.Position.Y - 2)
                 local desiredPos = Vector3.new(
@@ -2079,7 +2008,6 @@ RunService.Heartbeat:Connect(function(dt)
 
                 local moveDir = desiredPos - hrp.Position
                 local moveDist = moveDir.Magnitude
-
                 if moveDist > 0.5 then
                     local step = math.min(moveDist, followSpeed * (dt or 0.016))
                     hrp.CFrame = hrp.CFrame + moveDir.Unit * step
@@ -2089,7 +2017,9 @@ RunService.Heartbeat:Connect(function(dt)
     end
 end)
 
+----------------------------------------------------------------
 -- ESP TAB
+----------------------------------------------------------------
 createSectionLabel(ESPPage, "ESP")
 
 local espEnabled = Settings.ESPEnabled
@@ -2162,7 +2092,9 @@ createToggle(ESPPage, "Player ESP", espEnabled, function(v)
     end
 end)
 
+----------------------------------------------------------------
 -- MISC TAB
+----------------------------------------------------------------
 createSectionLabel(MiscPage, "Client Tools")
 
 createButton(MiscPage, "Rejoin Same Server", function()
