@@ -3,12 +3,12 @@ Ys2cBript - Premium Hub (Red Theme)
 Advanced UI + Loading Screen + Fixed Jump + Wall Remover + Auto Heal
 
 Fast Hit + Auto Drag Combo + ESP + Player Info + Misc Tools
-Password: geeked (get key in Discord)
+Password: Run (get key in Discord)
 Discord: https://discord.gg/KWKyYSKFhP
 ===============================================================]]
 
 --// PASSWORD GATE (UI-BASED)
-local EXPECTED_PASSWORD = "geeked"
+local EXPECTED_PASSWORD = "Run"
 local DISCORD_INVITE = "https://discord.gg/KWKyYSKFhP"
 
 local Players = game:GetService("Players")
